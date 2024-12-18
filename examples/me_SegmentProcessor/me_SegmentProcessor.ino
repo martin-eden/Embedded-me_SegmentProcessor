@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-12-13
+  Last mod.: 2024-12-18
 */
 
 /*
@@ -20,18 +20,41 @@
 #include <me_UartSpeeds.h>
 #include <me_Console.h>
 #include <me_FlashMemory.h>
+#include <me_WorkMemory.h>
 
-// Wrapping me_Uart::SendByte() as TResponsiveMethod
-TBool WriteUnit(
+// Wrapping me_WorkMemory::GetByte() as TResponsiveMethod
+TBool Mem_GetByte(
   TAddress Data,
-  TAddress Instance [[gnu::unused]]
+  TAddress Address
 )
 {
-  TUnit Unit;
+  TUint_1 * Byte = (TUint_1 *) Data;
 
-  Unit = *(TUnit *) Data;
+  return me_WorkMemory::GetByte(Byte, Address);
+}
 
-  me_Uart::SendByte(Unit);
+// Wrapping me_FlashMemory::GetByte() as TResponsiveMethod
+TBool Flash_GetByte(
+  TAddress Data,
+  TAddress Address
+)
+{
+  TUint_1 * Byte = (TUint_1 *) Data;
+
+  return me_FlashMemory::GetByte(Byte, Address);
+}
+
+// Wrapping me_Uart::SendByte() as TResponsiveMethod
+TBool Uart_SendByte(
+  TAddress Data,
+  TAddress Address [[gnu::unused]]
+)
+{
+  TUint_1 Byte;
+
+  Byte = *(TUint_1 *) Data;
+
+  me_Uart::SendByte(Byte);
 
   return true;
 }
@@ -41,23 +64,13 @@ void RunTest()
   using
     me_MemorySegment::TMemorySegment,
     me_MemorySegment::Freetown::FromAsciiz,
-    me_MemorySegment::Freetown::UnitGetter,
-    me_SegmentProcessor::TMemsegStreamReader,
-    me_SegmentProcessor::TMemsegStreamWriter,
     me_MemorySegment::Freetown::FromAddrSize,
-    me_SegmentProcessor::Copy;
+    me_SegmentProcessor::CopyFrom;
 
   TMemorySegment TestData = FromAsciiz("ABC\n");
   TMemorySegment FakeSegment = FromAddrSize(0, 2000);
-  TMemsegStreamReader InputStream;
-  TMemsegStreamWriter OutputStream;
-  TResponsiveMethod MemGetter = UnitGetter;
-  TResponsiveMethod UartWriter = WriteUnit;
 
-  InputStream.Init(TestData, MemGetter);
-  OutputStream.Init(FakeSegment, UartWriter);
-
-  Copy(&InputStream, &OutputStream);
+  CopyFrom(TestData, FakeSegment, Mem_GetByte, Uart_SendByte);
 
   /*
     Okay, we printed some text from memory to serial
@@ -74,12 +87,7 @@ void RunTest()
   TMemorySegment FlashDataSeg =
     FromAddrSize((TAddress) FlashTestData, sizeof(FlashTestData) - 1);
 
-  TResponsiveMethod FlashGetter = me_FlashMemory::UnitGetter;
-
-  InputStream.Init(FlashDataSeg, FlashGetter);
-  OutputStream.Init(FakeSegment, UartWriter);
-
-  Copy(&InputStream, &OutputStream);
+  CopyFrom(FlashDataSeg, FakeSegment, Flash_GetByte, Uart_SendByte);
 
   // ) Yes, we've just printed flash data to serial
 
