@@ -20,8 +20,8 @@ namespace me_SegmentProcessor
   TBool CopyFrom(
     me_MemorySegment::TMemorySegment Src,
     me_MemorySegment::TMemorySegment Dest,
-    TResponsiveMethod Getter,
-    TResponsiveMethod Setter
+    TOperation Getter,
+    TOperation Setter
   )
   {
     me_MemorySegment::TSegmentIterator SrcRator;

@@ -19,45 +19,8 @@
 #include <me_Uart.h>
 #include <me_UartSpeeds.h>
 #include <me_Console.h>
-#include <me_FlashMemory.h>
+#include <me_ProgramMemory.h>
 #include <me_WorkMemory.h>
-
-// Wrapping me_WorkMemory::GetByte() as TResponsiveMethod
-TBool Mem_GetByte(
-  TAddress Data,
-  TAddress Address
-)
-{
-  TUint_1 * Byte = (TUint_1 *) Data;
-
-  return me_WorkMemory::GetByte(Byte, Address);
-}
-
-// Wrapping me_FlashMemory::GetByte() as TResponsiveMethod
-TBool Flash_GetByte(
-  TAddress Data,
-  TAddress Address
-)
-{
-  TUint_1 * Byte = (TUint_1 *) Data;
-
-  return me_FlashMemory::GetByte(Byte, Address);
-}
-
-// Wrapping me_Uart::SendByte() as TResponsiveMethod
-TBool Uart_SendByte(
-  TAddress Data,
-  TAddress Address [[gnu::unused]]
-)
-{
-  TUint_1 Byte;
-
-  Byte = *(TUint_1 *) Data;
-
-  me_Uart::SendByte(Byte);
-
-  return true;
-}
 
 void RunTest()
 {
@@ -69,6 +32,9 @@ void RunTest()
 
   TMemorySegment TestData = FromAsciiz("ABC\n");
   TMemorySegment FakeSegment = FromAddrSize(0, 2000);
+  TOperation Mem_GetByte = me_WorkMemory::Op_GetByte;
+  TOperation Flash_GetByte = me_ProgramMemory::Op_GetByte;
+  TOperation Uart_SendByte = me_Uart::Op_PutByte;
 
   CopyFrom(TestData, FakeSegment, Mem_GetByte, Uart_SendByte);
 
