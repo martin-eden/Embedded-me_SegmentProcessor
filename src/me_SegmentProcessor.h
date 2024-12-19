@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-12-13
+  Last mod.: 2024-12-19
 */
 
 #pragma once
@@ -48,7 +48,7 @@ namespace me_SegmentProcessor
       if (!Getter(UnitAddr, ReadAddr))
         return false;
 
-      if (!Setter(UnitAddr, ReadAddr))
+      if (!Setter(UnitAddr, WriteAddr))
         return false;
     }
 
