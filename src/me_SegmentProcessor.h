@@ -22,38 +22,7 @@ namespace me_SegmentProcessor
     me_MemorySegment::TMemorySegment Dest,
     TOperation Getter,
     TOperation Setter
-  )
-  {
-    me_MemorySegment::TSegmentIterator SrcRator;
-    me_MemorySegment::TSegmentIterator DestRator;
-    TAddress ReadAddr;
-    TAddress WriteAddr;
-    TUnit Unit;
-    TAddress UnitAddr = (TAddress) &Unit;
-
-    if (!SrcRator.Init(Src))
-      return false;
-
-    if (!DestRator.Init(Dest))
-      return false;
-
-    while (true)
-    {
-      if (!SrcRator.GetNext(&ReadAddr))
-        break;
-
-      if (!DestRator.GetNext(&WriteAddr))
-        break;
-
-      if (!Getter(UnitAddr, ReadAddr))
-        return false;
-
-      if (!Setter(UnitAddr, WriteAddr))
-        return false;
-    }
-
-    return true;
-  };
+  );
 }
 
 /*
