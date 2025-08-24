@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-12-19
+  Last mod.: 2025-08-24
 */
 
 #include <me_SegmentProcessor.h>
@@ -13,38 +13,86 @@ using
   me_MemorySegment::TMemorySegment,
   me_MemorySegment::TSegmentIterator;
 
+/*
+  Copy data between segments
+*/
 TBool me_SegmentProcessor::CopyFrom(
-  TMemorySegment Src,
-  TMemorySegment Dest,
-  TOperation Getter,
-  TOperation Setter
+  TMemorySegment Src_Seg,
+  TMemorySegment Dest_Seg,
+  TOperation Src_Getter,
+  TOperation Dest_Setter
 )
 {
-  TSegmentIterator SrcRator;
-  TSegmentIterator DestRator;
+  TSegmentIterator Src_Rator;
+  TSegmentIterator Dest_Rator;
+
   TAddress ReadAddr;
   TAddress WriteAddr;
+
   TUnit Unit;
   TAddress UnitAddr = (TAddress) &Unit;
 
-  if (!SrcRator.Init(Src))
+  if (!Src_Rator.Init(Src_Seg))
     return false;
 
-  if (!DestRator.Init(Dest))
+  if (!Dest_Rator.Init(Dest_Seg))
     return false;
 
-  while (true)
+  while (Src_Rator.GetNext(&ReadAddr))
   {
-    if (!SrcRator.GetNext(&ReadAddr))
-      break;
-
-    if (!DestRator.GetNext(&WriteAddr))
-      break;
-
-    if (!Getter(UnitAddr, ReadAddr))
+    if (!Src_Getter(UnitAddr, ReadAddr))
       return false;
 
-    if (!Setter(UnitAddr, WriteAddr))
+    if (!Dest_Rator.GetNext(&WriteAddr))
+      return false;
+
+    if (!Dest_Setter(UnitAddr, WriteAddr))
+      return false;
+  }
+
+  return true;
+}
+
+/*
+  Compare segment's data
+*/
+TBool me_SegmentProcessor::AreEqual(
+  me_MemorySegment::TMemorySegment A_Seg,
+  me_MemorySegment::TMemorySegment B_Seg,
+  TOperation A_Getter,
+  TOperation B_Getter
+)
+{
+  TSegmentIterator A_Rator;
+  TSegmentIterator B_Rator;
+
+  TUnit A_Unit;
+  TUnit B_Unit;
+
+  TAddress A_Unit_Addr = (TAddress) &A_Unit;
+  TAddress B_Unit_Addr = (TAddress) &B_Unit;
+
+  TAddress A_ReadAddr;
+  TAddress B_ReadAddr;
+
+  if (!A_Rator.Init(A_Seg))
+    return false;
+
+  if (!B_Rator.Init(B_Seg))
+    return false;
+
+  while (A_Rator.GetNext(&A_ReadAddr))
+  {
+    if (!A_Getter(A_Unit_Addr, A_ReadAddr))
+      return false;
+
+    if (!B_Rator.GetNext(&B_ReadAddr))
+      return false;
+
+    if (!B_Getter(B_Unit_Addr, B_ReadAddr))
+      return false;
+
+    if (A_Unit != B_Unit)
       return false;
   }
 

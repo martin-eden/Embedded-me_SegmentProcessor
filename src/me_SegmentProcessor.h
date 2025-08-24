@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2024-12-19
+  Last mod.: 2025-08-24
 */
 
 #pragma once
@@ -12,20 +12,25 @@
 
 namespace me_SegmentProcessor
 {
-  /*
-    Copy stream
-
-    Function fails when input or output stream fails.
-  */
+  // Copy data
   TBool CopyFrom(
-    me_MemorySegment::TMemorySegment Src,
-    me_MemorySegment::TMemorySegment Dest,
-    TOperation Getter,
-    TOperation Setter
+    me_MemorySegment::TMemorySegment Src_Seg,
+    me_MemorySegment::TMemorySegment Dest_Seg,
+    TOperation Src_Getter,
+    TOperation Dest_Setter
+  );
+
+  // Compare data
+  TBool AreEqual(
+    me_MemorySegment::TMemorySegment A_Seg,
+    me_MemorySegment::TMemorySegment B_Seg,
+    TOperation A_Getter,
+    TOperation B_Getter
   );
 }
 
 /*
   2024-12-13
   2024-12-18
+  2025-08-24
 */
