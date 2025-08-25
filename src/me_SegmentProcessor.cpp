@@ -2,7 +2,7 @@
 
 /*
   Author: Martin Eden
-  Last mod.: 2025-08-24
+  Last mod.: 2025-08-25
 */
 
 #include <me_SegmentProcessor.h>
@@ -38,12 +38,12 @@ TBool me_SegmentProcessor::CopyFrom(
   if (!Dest_Rator.Init(Dest_Seg))
     return false;
 
-  while (Src_Rator.GetNext(&ReadAddr))
+  while (Src_Rator.GetNextAddr(&ReadAddr))
   {
     if (!Src_Getter(UnitAddr, ReadAddr))
       return false;
 
-    if (!Dest_Rator.GetNext(&WriteAddr))
+    if (!Dest_Rator.GetNextAddr(&WriteAddr))
       return false;
 
     if (!Dest_Setter(UnitAddr, WriteAddr))
@@ -81,12 +81,12 @@ TBool me_SegmentProcessor::AreEqual(
   if (!B_Rator.Init(B_Seg))
     return false;
 
-  while (A_Rator.GetNext(&A_ReadAddr))
+  while (A_Rator.GetNextAddr(&A_ReadAddr))
   {
     if (!A_Getter(A_Unit_Addr, A_ReadAddr))
       return false;
 
-    if (!B_Rator.GetNext(&B_ReadAddr))
+    if (!B_Rator.GetNextAddr(&B_ReadAddr))
       return false;
 
     if (!B_Getter(B_Unit_Addr, B_ReadAddr))
